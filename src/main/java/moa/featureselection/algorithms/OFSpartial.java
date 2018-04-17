@@ -39,6 +39,7 @@ AttributeEvaluator, MOAAttributeEvaluator {
 	  private boolean m_Binarize;
 	
 	private static AlgVector weights = null;
+	private static AlgVector c_t = null;
 	
 	/**
 	   * Returns a string describing this attribute evaluator
@@ -142,9 +143,9 @@ AttributeEvaluator, MOAAttributeEvaluator {
 	public void updateEvaluator(Instance inst) throws Exception {
 		// TODO Auto-generated method stub
 		
-		this.numAttributesInstance = inst.numAttributes()-1;
-		this.selectedFeatures = Math.round( 0.1 * (inst.numAttributes()-1));
-		AlgVector c_t = null;
+		numAttributesInstance = inst.numAttributes()-1;
+		selectedFeatures = Math.round( 0.1 * (inst.numAttributes()-1));
+		
 		
 		if(weights == null) {
 	  		weights = new AlgVector(new double[inst.numAttributes() - 1]);
@@ -179,7 +180,7 @@ AttributeEvaluator, MOAAttributeEvaluator {
 		
 		if(pred * inst.classValue() <= 1){
 			x_t.scalarMultiply(eta * inst.classValue());
-	  		//weights = weights.add(x_t);
+	  		weights = weights.add(x_t);
 	  		weights.scalarMultiply(Math.min(1.0, R / weights.norm()));
 	  		
 			
@@ -227,7 +228,7 @@ AttributeEvaluator, MOAAttributeEvaluator {
 	
 	private static AlgVector getNewXt(AlgVector x) {
 		AlgVector xt = null;
-		double[] calc = new double[numAttributesInstance-1];		
+		double[] calc = new double[numAttributesInstance];		
 		 
 		for(int i = 0; i < numAttributesInstance-1; i++) {
 			if (weights.getElement(i)!=0) {
