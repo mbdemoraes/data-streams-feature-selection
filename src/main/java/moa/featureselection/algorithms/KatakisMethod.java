@@ -30,7 +30,7 @@ import com.yahoo.labs.samoa.instances.Instance;
  * <br/>
  * InfoGain(Class,Attribute) = H(Class) - H(Class | Attribute).<br/>
  * <p/>
- * <!-- globalinfo-end -->
+ * <!-- globalinfo-end -->cd ..
  * 
  * <!-- options-start --> Valid options are:
  * <p/>

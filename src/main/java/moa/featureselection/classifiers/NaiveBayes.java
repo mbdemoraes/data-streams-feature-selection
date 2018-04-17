@@ -35,6 +35,7 @@ import moa.core.Measurement;
 import moa.core.StringUtils;
 import moa.featureselection.algorithms.KatakisMethod;
 import moa.featureselection.algorithms.OnlineFeatureSelection;
+import moa.featureselection.algorithms.OFSpartial;
 import moa.featureselection.common.MOAAttributeEvaluator;
 import weka.attributeSelection.ASEvaluation;
 import weka.attributeSelection.AttributeSelection;
@@ -90,7 +91,7 @@ public class NaiveBayes extends AbstractClassifier {
 	/* Attribute for the user to select which FS method shall be used. */
 	public static IntOption fsmethodOption = new IntOption("fsMethod", 'm',
 			"Infotheoretic method to be used in feature selection: 0. No method. 1. Katakis 2. FCBF 3. OFS",
-			0, 0, 3);
+			3, 0, 3);
 	/* Attribute for the user to select the size of the window for model updates */
 	public static IntOption winSizeOption = new IntOption("winSize", 'w', "Window size for model updates", 1, 1,
 			Integer.MAX_VALUE);
@@ -206,7 +207,8 @@ public class NaiveBayes extends AbstractClassifier {
 		if (fsmethodOption.getValue() != 0) {
 			if (fselector == null) {
 				if (fsmethodOption.getValue() == 3) {
-					fselector = new OnlineFeatureSelection(numFeaturesOption.getValue());
+					//fselector = new OnlineFeatureSelection(numFeaturesOption.getValue());
+					fselector = new OFSpartial(numFeaturesOption.getValue());
 				} else if ((fsmethodOption.getValue() == 2) || (fsmethodOption.getValue() == 1)) {
 					fselector = new KatakisMethod(fsmethodOption.getValue());
 				}
