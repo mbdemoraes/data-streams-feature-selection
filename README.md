@@ -4,7 +4,7 @@ This project can be used as an extension for Massive Online Analysis (MOA) softw
 
 ## Inspirational publication
 
-Our work was inspired by the excelent publication below, where the authors developed an library for MOA, with different data reduction techniques, including discretization, instance selection and even feature selection methods. 
+Our work was inspired by the excelent publication below, where the authors developed an library for MOA, with different data reduction techniques, including discretization, instance selection and even some feature selection methods. 
 
 Sergio Ramírez-Gallego, Bartosz Krawczyk, Salvador García, Michał Woźniak, Francisco Herrera, A survey on Data Preprocessing for Data Stream Mining: Current status and future directions, Neurocomputing, Available online 14 February 2017, ISSN 0925-2312, http://dx.doi.org/10.1016/j.neucom.2017.01.078. (http://www.sciencedirect.com/science/article/pii/S0925231217302631)
 
