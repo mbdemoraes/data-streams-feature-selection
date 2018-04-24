@@ -4,8 +4,8 @@ This project can be used as an extension for Massive Online Analysis (MOA) softw
 
 ## Installation and requirements
 
-MOA Version: v2017.06 (can be download here: https://moa.cms.waikato.ac.nz/downloads/)
-WEKA Version: v3.8.2 (can be download here: https://www.cs.waikato.ac.nz/ml/weka/downloading.html)
+MOA Version: v2017.06 (can be download here: https://moa.cms.waikato.ac.nz/downloads/) .
+WEKA Version: v3.8.2 (can be download here: https://www.cs.waikato.ac.nz/ml/weka/downloading.html) .
 
 In order to use this project, please download the file MOA_FeatureSelection.jar from the lib directory. Then, add it to the classpath when launching MOA:
 
@@ -21,15 +21,15 @@ Example (Linux/mac):
 
 To use this extension, in MOA's GUI, select the Classification tab. Click in Configure, and at the new window, over Learner, click in Edit. On the "Editing option: learner" window, select "class moa.featureselection.classifiers.NaiveBayes". There will be three options to configure, each one described below:
 
-* numFeatures: number of features the selected feature selection method has to choose.
+* numFeatures: number of features the selected feature selection method has to choose. Default 10.
 * fsMethod: which feature selection method will be used to reduce the dataset's attributes. They are: 0. None (default); 1. Katakis Method; 2. FBCF; 3. OFS.
-* winSize: window size, how much tuples (or instances) will be processed and classified each time.
+* winSize: window size, how much tuples (or instances) will be processed and classified each time. Default 1.
 
 ## Feature Selection Methods 
 
 ### Katakis Method
 
-This FS scheme is formed by two steps: a) an incremental feature ranking method, and b) an incremental learning algorithm that can consider a subset of the features during prediction (Naive Bayes). 
+Katakis et. al. proposes a method for feature selection in online learning by using two steps in conjunction: 1-) an incremental feature ranking method and 2-) an incremental learning algorithm that considers a subet of features during prediction, such as Naive Bayes or k-NN.
 
 *I. Katakis, G. Tsoumakas, I. Vlahavas, Advances in Informatics: 10th Panhellenic Conference on Informatics, PCI 2005, Springer Berlin Heidelberg, 2005, Ch. On the Utility of Incremental Feature Selection for the Classification of Textual Data Streams, pp. 338–348.*
 
