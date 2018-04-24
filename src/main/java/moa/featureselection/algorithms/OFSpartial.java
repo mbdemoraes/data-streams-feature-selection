@@ -25,7 +25,7 @@ AttributeEvaluator, MOAAttributeEvaluator {
 	
 	private static final int R = 10; //according to authors criteria
 	private static int numFeatures = 10; 
-	private static long selectedFeatures = 0;
+	private static int selectedFeatures = 0;
 	private static int numAttributesInstance = 0;
 	private static final double epsilon = 0.2; //according to authors criteria
 	private static final double eta = 0.2; //according to authors criteria
@@ -144,12 +144,12 @@ AttributeEvaluator, MOAAttributeEvaluator {
 		// TODO Auto-generated method stub
 		
 		numAttributesInstance = inst.numAttributes()-1;
-		selectedFeatures = Math.round( 0.1 * (inst.numAttributes()-1));
+		selectedFeatures = (int) Math.round( 0.1 * (inst.numAttributes()-1));
 		
 		
 		if(weights == null) {
-	  		weights = new AlgVector(new double[inst.numAttributes() - 1]);
-	  		c_t = new AlgVector(new double[inst.numAttributes() - 1]);
+	  		weights = new AlgVector(new double[selectedFeatures]);
+	  		c_t = new AlgVector(new double[selectedFeatures]);
 	  		for(int i = 0; i < weights.numElements(); i++) {
 	  			weights.setElement(i, 0); 
 	  			c_t.setElement(i,0);
@@ -192,9 +192,9 @@ AttributeEvaluator, MOAAttributeEvaluator {
 	  		}
 			
 			// Truncate
-	  		if(counts > numFeatures) {
+	  		if(counts > selectedFeatures) {
 	  			Arrays.sort(array);
-	  			for(int i = numFeatures + 1; i < array.length; i++)
+	  			for(int i = selectedFeatures + 1; i < array.length; i++)
 	  				weights.setElement(array[i].index, 0);
 	  		}
 	  	
@@ -208,13 +208,13 @@ AttributeEvaluator, MOAAttributeEvaluator {
 	private static AlgVector getRandomAttributes(Instance inst) {
 		AlgVector c_t = null;
 		double[] newVector = new double[numFeatures-1];
-		int maxValue = inst.numAttributes()-1;
+		int maxValue = selectedFeatures;
 		int randomNum = 0;
 		
 		double[] rawx = Arrays.copyOfRange(inst.toDoubleArray(), 0, inst.numAttributes() - 1);
 		
 		
-		for(int i =0; i < numFeatures-1; i++) {
+		for(int i =0; i < selectedFeatures-1; i++) {
 			//nextInt is normally exclusive of the top value,
 			//so add 1 to make it inclusive
 			randomNum = ThreadLocalRandom.current().nextInt(0, maxValue-1);
@@ -228,13 +228,25 @@ AttributeEvaluator, MOAAttributeEvaluator {
 	
 	private static AlgVector getNewXt(AlgVector x) {
 		AlgVector xt = null;
-		double[] calc = new double[numAttributesInstance];		
+		double[] calc = new double[selectedFeatures];		
 		 
-		for(int i = 0; i < numAttributesInstance-1; i++) {
+		for(int i = 0; i < selectedFeatures-1; i++) {
 			if (weights.getElement(i)!=0) {
-				calc[i] = x.getElement(i) / (numFeatures/numAttributesInstance * epsilon) +  (weights.getElement(i)* (1-epsilon));
+				
+				if(x.getElement(i) == 0) {
+					calc[i] = 0.0;
+				} else {
+					calc[i] = x.getElement(i) / (selectedFeatures * epsilon) +  (weights.getElement(i)* (1-epsilon));
+				}
+				
 			} else {
-				calc[i] = x.getElement(i) / (numFeatures/numAttributesInstance * epsilon);
+				
+				if(x.getElement(i) == 0) {
+					calc[i] = 0.0;
+				} else {
+					calc[i] = x.getElement(i) / (selectedFeatures * epsilon);
+				}
+				
 			}
 			
 			

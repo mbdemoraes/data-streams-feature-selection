@@ -28,7 +28,7 @@ public class Experiment {
         		Classifier learner = new NaiveBayes();
                 
                 //RandomRBFGenerator stream = new RandomRBFGenerator();
-        		ArffFileStream stream = new ArffFileStream("/home/athos/elecNormNew.arff", -1);
+        		ArffFileStream stream = new ArffFileStream("/home/athos/usenet1.arff", -1);
         		//ArffFileStream stream = new ArffFileStream("/home/sramirez/datasets/drift/real/covtypeNorm.arff", -1);
         		//ArffFileStream stream = new ArffFileStream("/home/sramirez/datasets/drift/real/poker-lsn.arff", -1);
         		//ArffFileStream stream = new ArffFileStream("/home/sramirez/datasets/drift/artificial/sudden_drift_med.arff", -1);
