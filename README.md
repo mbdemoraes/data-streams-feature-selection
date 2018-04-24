@@ -2,7 +2,7 @@
 
 This project can be used as an extension for Massive Online Analysis (MOA) software, and intends to provide a set of the most relevant feature selection algorithms for stream data mining. This work is under construction, but it can be already be used. The complete list of the methods already developed are described below.
 
-## Inspiration publication
+## Inspirational publication
 
 Our work was inspired by the excelent publication below, where the authors developed an library for MOA, with different data reduction techniques, including discretization, instance selection and even feature selection methods. 
 
