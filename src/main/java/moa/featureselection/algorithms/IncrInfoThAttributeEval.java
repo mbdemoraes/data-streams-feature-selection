@@ -53,7 +53,7 @@ import com.yahoo.labs.samoa.instances.Instance;
  * @see Discretize
  * @see NumericToBinary
  */
-public class KatakisMethod extends ASEvaluation implements
+public class IncrInfoThAttributeEval extends ASEvaluation implements
   AttributeEvaluator, MOAAttributeEvaluator {
 
   /** for serialization */
@@ -92,11 +92,11 @@ public class KatakisMethod extends ASEvaluation implements
   /**
    * Constructor
    */
-  public KatakisMethod() {
+  public IncrInfoThAttributeEval() {
     resetOptions();    
   }
   
-  public KatakisMethod(int method) {
+  public IncrInfoThAttributeEval(int method) {
 	  	this.method = method;
 	    resetOptions();
 	    
@@ -277,7 +277,7 @@ public class KatakisMethod extends ASEvaluation implements
 	            }
 	            
 	            switch (method) {
-				case 1:
+				case 2:
 					m_InfoValues[i] = ContingencyTables.symmetricalUncertainty(lcounts);
 					break;
 
@@ -328,7 +328,12 @@ public class KatakisMethod extends ASEvaluation implements
     if (m_InfoValues == null) {
       text.append("Information Gain attribute evaluator has not been built");
     } else {
-      text.append("\t Katakis Method (with Information Gain as a Raking Filter)");
+      if(method==1) {
+    	  text.append("\t Katakis Method (with Information Gain as a Raking Filter)");
+      } else {
+    	  text.append("Symmetrical Uncertainty as Ranking Filter");  
+      }
+      
       if (!m_missing_merge) {
         text.append("\n\tMissing values treated as seperate");
       }
