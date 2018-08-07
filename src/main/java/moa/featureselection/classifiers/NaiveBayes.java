@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import moa.classifiers.AbstractClassifier;
+import moa.classifiers.MultiClassClassifier;
 import moa.classifiers.core.attributeclassobservers.AttributeClassObserver;
 import moa.classifiers.core.attributeclassobservers.GaussianNumericAttributeClassObserver;
 import moa.classifiers.core.attributeclassobservers.NominalAttributeClassObserver;
@@ -33,6 +34,7 @@ import moa.core.AutoExpandVector;
 import moa.core.DoubleVector;
 import moa.core.Measurement;
 import moa.core.StringUtils;
+import moa.featureselection.algorithms.ExtremeFeatureSelection;
 import moa.featureselection.algorithms.IncrInfoThAttributeEval;
 import moa.featureselection.algorithms.OnlineFeatureSelection;
 import moa.featureselection.common.MOAAttributeEvaluator;
@@ -59,7 +61,7 @@ import weka.core.Instances;
  * @version $Revision: 7 $
  */
 
-public class NaiveBayes extends AbstractClassifier {
+public class NaiveBayes extends AbstractClassifier implements MultiClassClassifier {
 
 	private static final long serialVersionUID = 1L;
 	protected DoubleVector observedClassDistribution;
@@ -89,8 +91,8 @@ public class NaiveBayes extends AbstractClassifier {
 			10, 1, Integer.MAX_VALUE);
 	/* Attribute for the user to select which FS method shall be used. */
 	public static IntOption fsmethodOption = new IntOption("fsMethod", 'm',
-			"Infotheoretic method to be used in feature selection: 0. No method. 1. Information Gain 2. FCBF 3. OFS ",
-			0, 0, 3);
+			"Infotheoretic method to be used in feature selection: 0. No method. 1. Information Gain 2. FCBF 3. OFS 4. EFS with MBW",
+			0, 0, 4);
 	/* Attribute for the user to select the size of the window for model updates */
 	public static IntOption winSizeOption = new IntOption("winSize", 'w', "Window size for model updates", 1, 1,
 			Integer.MAX_VALUE);
@@ -205,7 +207,10 @@ public class NaiveBayes extends AbstractClassifier {
 		com.yahoo.labs.samoa.instances.Instance rinst = inst;
 		if (fsmethodOption.getValue() != 0) {
 			if (fselector == null) {
-				if (fsmethodOption.getValue() == 3) {
+				if (fsmethodOption.getValue() == 4) {
+					fselector = new ExtremeFeatureSelection();
+				}
+				else if (fsmethodOption.getValue() == 3) {
 					fselector = new OnlineFeatureSelection(numFeaturesOption.getValue());					
 				} else if ((fsmethodOption.getValue() == 2 || fsmethodOption.getValue() == 1 )) {
 					fselector = new IncrInfoThAttributeEval(fsmethodOption.getValue());
