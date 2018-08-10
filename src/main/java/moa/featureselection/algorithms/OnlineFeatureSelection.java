@@ -37,7 +37,7 @@ import weka.filters.supervised.attribute.Discretize;
 import weka.filters.unsupervised.attribute.NumericToBinary;
 
 /**
- * <!-- globalinfo-start --> OFSGDAttributeEval :<br/>
+ * <!-- globalinfo-start --> Online Feature Selection :<br/>
  * <br/>
  * Evaluates the worth of an attribute through the computation of weights 
  * using a linear classifier with sparse projection.<br/>

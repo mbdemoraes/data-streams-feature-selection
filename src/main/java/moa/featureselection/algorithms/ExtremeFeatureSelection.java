@@ -1,45 +1,71 @@
+/*
+ *    ExtremeFeatureSelection.java
+ *    Copyright (C) 2018 University of Campinas, Brazil
+ *    @author Matheus Bernardelli (matheuzmoraes@gmail.com)
+ *
+ *    This program is free software; you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation; either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *    
+ */
+
 package moa.featureselection.algorithms;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Arrays;
-
-import com.yahoo.labs.samoa.instances.Attribute;
-import com.yahoo.labs.samoa.instances.AttributesInformation;
 import com.yahoo.labs.samoa.instances.Instance;
-import com.yahoo.labs.samoa.instances.InstanceInformation;
-
 import moa.featureselection.common.MOAAttributeEvaluator;
 import weka.attributeSelection.ASEvaluation;
 import weka.attributeSelection.AttributeEvaluator;
 import weka.core.AlgVector;
 import weka.core.Instances;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.NominalToBinary;
-import weka.filters.unsupervised.attribute.Normalize;
-import weka.filters.unsupervised.attribute.ReplaceMissingValues;
-import java.util.Collections;
 
+
+/**
+ * <!-- globalinfo-start --> Extreme Feature Selection :<br/>
+ * <br/>
+ * Evaluates the worth of an attribute through the computation of weights 
+ * based on the Modified Balanced Winnow.<br/>
+ * <br/>
+ * Carvalho, V. R.; Cohen, W. W. Single-pass online learning. Proceedings of the
+ * 12th ACM SIGKDD international conference on Knowledge discovery and data mining -
+ * KDD ’06, p. 548, 2006.
+ * doi: 10.1145/1150402.1150466 <br/>
+ * <p/>
+ * <!-- globalinfo-end -->
+ * 
+ * 
+ * @author Matheus Bernardelli (matheuzmoraes@gmail.com)
+ */
 
 public class ExtremeFeatureSelection extends ASEvaluation implements
 AttributeEvaluator, MOAAttributeEvaluator{
+	
 
-	/** The number of iterations **/
-	protected int m_numIterations = 1;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-	/** The promotion coefficient **/
+	/** The promotion coefficient. According to the authors criteria.**/
 	protected double m_Alpha = 1.5;
 
-	/** The demotion coefficient **/
+	/** The demotion coefficient. According to the authors criteria.**/
 	protected double m_Beta = 0.5;
 
-	/** Prediction threshold, <0 == numAttributes **/
+	/** Prediction threshold. According to the authors criteria.**/
 	protected double m_Threshold = 1.0;
 
+	/** Predefined margin. According to the authors criteria. **/
 	protected double marginM = 1.0;
-
-	/** Random seed used for shuffling the dataset, -1 == disable **/
-	protected int m_Seed = 1;
 
 	/** Accumulated mistake count (for statistics) **/
 	protected int m_Mistakes = 0;
@@ -57,12 +83,7 @@ AttributeEvaluator, MOAAttributeEvaluator{
 	private AlgVector m_predPosVector = null;
 	private AlgVector m_predNegVector = null;
 
-	private double[] uVector = null;
-	private double[] vVector = null;
 
-
-	/** The true threshold used for prediction **/
-	private double m_actualThreshold;
 
 	private boolean updated = false;
 	
@@ -110,25 +131,32 @@ AttributeEvaluator, MOAAttributeEvaluator{
 
 	}
 
-
-
-	public void updateModels(Instance inst, double trueClass) throws Exception {
+	/**
+	 * Updates the positive and negative models.
+	 * @param normalizedData Instance normalized data
+	 * @param trueClass Instance true class
+	 * @throws Exception
+	 */
+	public void updateModels(double[] normalizedData, double trueClass) throws Exception {
 
 		m_Mistakes++;
 
-		int n1 = inst.numValues(); 
+		int n1 = normalizedData.length; 
 		for(int l = 0 ; l < n1; l++) {
 			if(trueClass > 0) { 
-				m_predPosVector.setElement(inst.index(l),  (m_predPosVector.getElement(inst.index(l))*m_Alpha*(1+inst.value(l))));		  
-				m_predNegVector.setElement(inst.index(l),  (m_predNegVector.getElement(inst.index(l))*m_Beta*(1-inst.value(l))));  
+				m_predPosVector.setElement(l,  (m_predPosVector.getElement(l)*m_Alpha*(1+normalizedData[l])));		  
+				m_predNegVector.setElement(l,  (m_predNegVector.getElement(l)*m_Beta*(1-normalizedData[l])));  
 			} else {
-				m_predPosVector.setElement(inst.index(l),  (m_predPosVector.getElement(inst.index(l))*m_Beta*(1+inst.value(l))));		  
-				m_predNegVector.setElement(inst.index(l),  (m_predNegVector.getElement(inst.index(l))*m_Alpha*(1-inst.value(l))));  
+				m_predPosVector.setElement(l,  (m_predPosVector.getElement(l)*m_Beta*(1+normalizedData[l])));		  
+				m_predNegVector.setElement(l,  (m_predNegVector.getElement(l))*m_Alpha*(1-normalizedData[l]));  
 			}
 			rankedAttributes.setElement(l, Math.abs(m_predPosVector.getElement(l) - m_predNegVector.getElement(l)));
 		}
 	}
 
+	/**
+	 * 
+	 */
 
 	public void updateEvaluator(Instance inst) throws Exception {
 
@@ -142,9 +170,7 @@ AttributeEvaluator, MOAAttributeEvaluator{
 				rankedAttributes.setElement(i, 0);
 			}
 		}
-		
-		
-
+			
 		//Augmentation and normalization step
 		double[] rawx = Arrays.copyOfRange(inst.toDoubleArray(), 0, inst.numAttributes() - 1);
 		double[] normalizedData = new double[rawx.length +1];
@@ -159,30 +185,12 @@ AttributeEvaluator, MOAAttributeEvaluator{
 			
 		}
 
-		/*List<Attribute> attList = new ArrayList<Attribute>();
-
-		for(int i=0; i<inst.numAttributes()-1;i++) {
-			Attribute atributo = new Attribute(Double.toString(normalizedData[i]));
-			attList.add(atributo);
-		}
-		InstanceInformation instanceInformation  = new InstanceInformation("Test", attList);
-		instanceInformation.setClassIndex(inst.numAttributes());
-		Attribute attribute = new Attribute("1");
-		instanceInformation.insertAttributeAt(attribute, inst.numAttributes()-2);
-*/
-		/** Set actual prediction threshold **/
-		if(m_Threshold<0) {
-			m_actualThreshold = (double)inst.numAttributes()-1;
-		} else {
-			m_actualThreshold = m_Threshold;
-		}
-
 		AlgVector x = new AlgVector(normalizedData);
-		score = (m_predPosVector.dotMultiply(x)) - (m_predNegVector.dotMultiply(x)) - m_actualThreshold; 
+		score = (m_predPosVector.dotMultiply(x)) - (m_predNegVector.dotMultiply(x)) - m_Threshold; 
 		double classValue = inst.classValue();
 		
 		if(score * classValue <= marginM){
-			updateModels(inst, inst.classValue());
+			updateModels(normalizedData, inst.classValue());
 		}
 		
 		updated = true;
