@@ -10,7 +10,7 @@ Sergio Ramírez-Gallego, Bartosz Krawczyk, Salvador García, Michał Woźniak, F
 
 ## Installation and requirements
 
-MOA Version: v2017.06 (can be download here: https://moa.cms.waikato.ac.nz/downloads/) .
+MOA Version: v2018.06 (can be download here: https://moa.cms.waikato.ac.nz/downloads/) .
 WEKA Version: v3.8.2 (can be download here: https://www.cs.waikato.ac.nz/ml/weka/downloading.html) .
 
 In order to use this project, please download the file MOA_FeatureSelection.jar from the lib directory. Then, add it to the classpath when launching MOA:
