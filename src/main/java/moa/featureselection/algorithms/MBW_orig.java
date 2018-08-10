@@ -256,8 +256,7 @@ public class MBW_orig implements Classifier, UpdateableClassifier {
 
     // Filter data
     m_Train = new Instances(insts);
-    m_Train.deleteWithMissingClass();
-    
+    m_Train.deleteWithMissingClass();    
     m_ReplaceMissingValues = new ReplaceMissingValues();
     m_ReplaceMissingValues.setInputFormat(m_Train);
     m_Train = Filter.useFilter(m_Train, m_ReplaceMissingValues);
