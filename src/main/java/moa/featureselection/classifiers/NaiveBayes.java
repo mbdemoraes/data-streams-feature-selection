@@ -36,7 +36,9 @@ import moa.core.AutoExpandVector;
 import moa.core.DoubleVector;
 import moa.core.Measurement;
 import moa.core.StringUtils;
+import moa.featureselection.algorithms.ChiSquaredOnline;
 import moa.featureselection.algorithms.ExtremeFeatureSelection;
+import moa.featureselection.algorithms.FastOSFS;
 import moa.featureselection.algorithms.IncrInfoThAttributeEval;
 import moa.featureselection.algorithms.OnlineFeatureSelection;
 import moa.featureselection.common.MOAAttributeEvaluator;
@@ -93,8 +95,8 @@ public class NaiveBayes extends AbstractClassifier implements MultiClassClassifi
 			10, 1, Integer.MAX_VALUE);
 	/* Attribute for the user to select which FS method shall be used. */
 	public static IntOption fsmethodOption = new IntOption("fsMethod", 'm',
-			"Infotheoretic method to be used in feature selection: 0. No method. 1. Information Gain 2. FCBF 3. OFS 4. EFS with MBW",
-			0, 0, 4);
+			"Infotheoretic method to be used in feature selection: 0. No method. 1. Information Gain 2. FCBF 3. OFS 4. EFS with MBW 5. FastOSFS",
+			0, 0, 5);
 	/* Attribute for the user to select the size of the window for model updates */
 	public static IntOption winSizeOption = new IntOption("winSize", 'w', "Window size for model updates", 1, 1,
 			Integer.MAX_VALUE);
@@ -209,7 +211,10 @@ public class NaiveBayes extends AbstractClassifier implements MultiClassClassifi
 		com.yahoo.labs.samoa.instances.Instance rinst = inst;
 		if (fsmethodOption.getValue() != 0) {
 			if (fselector == null) {
-				if (fsmethodOption.getValue() == 4) {
+				if (fsmethodOption.getValue() == 5) {
+					fselector = new FastOSFS();
+				}
+			    else if (fsmethodOption.getValue() == 4) {
 					fselector = new ExtremeFeatureSelection();
 				}
 				else if (fsmethodOption.getValue() == 3) {

@@ -277,6 +277,10 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 	            }
 	            
 	            switch (method) {
+	            case 5:
+	            	m_InfoValues[i] = ContingencyTables.chiVal(
+	            	          ContingencyTables.reduceMatrix(lcounts), false);
+					break;
 				case 2:
 					m_InfoValues[i] = ContingencyTables.symmetricalUncertainty(lcounts);
 					break;
@@ -288,7 +292,7 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 				}		        
 		      }
 		    }
-		    //System.out.println("Attribute values: " + Arrays.toString(m_InfoValues));
+		    
             updated = false;
 	  }
   }
@@ -330,8 +334,10 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
     } else {
       if(method==1) {
     	  text.append("\t Katakis Method (with Information Gain as a Raking Filter)");
-      } else {
+      } else if (method==2){
     	  text.append("Symmetrical Uncertainty as Ranking Filter");  
+      } else {
+    	  text.append("Chi Squared");  
       }
       
       if (!m_missing_merge) {
