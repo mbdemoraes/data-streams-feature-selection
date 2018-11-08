@@ -81,7 +81,11 @@ public class OnlineFeatureSelection extends ASEvaluation implements
   /** Just binarize numeric attributes */
   private boolean m_Binarize;
   
+  private boolean drift = false;
+  
   private AlgVector weights = null;
+  
+  private int maxCounter = 0;
   
   static final double eta = 0.2; // According to authors' criterion  
   static final double lambda = 0.01; // According to authors' criterion  
@@ -192,8 +196,17 @@ public class OnlineFeatureSelection extends ASEvaluation implements
 	  	if(weights == null) {
 	  		weights = new AlgVector(new double[inst.numAttributes() - 1]);
 	  		for(int i = 0; i < weights.numElements(); i++) weights.setElement(i, 0); 
-	  	}	  	
+	  	}
+	  	
+	  	/*if(maxCounter>=100000 && drift==false) {
+	  		weights = null;
+	  		maxCounter = 0;
+	  		drift = true;
+	  	}
 
+	  	
+	  	maxCounter++;*/
+	  	
 	  	double[] rawx = Arrays.copyOfRange(inst.toDoubleArray(), 0, inst.numAttributes() - 1);
 	  	AlgVector x = new AlgVector(rawx);
 	  	double pred = weights.dotMultiply(x); 

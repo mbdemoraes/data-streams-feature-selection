@@ -64,6 +64,8 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 
   /** Just binarize numeric attributes */
   private boolean m_Binarize;
+  
+  private int maxCounter = 0;
 
   /** The info gain for each attribute */
   private double[] m_InfoValues = null;
@@ -223,13 +225,21 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 	    counts = (HashMap<Key, Float>[]) new HashMap[inst.numAttributes()];
 	    for(int i = 0; i < counts.length; i++) counts[i] = new HashMap<Key, Float>();
   	}
-      for (int i = 0; i < inst.numValues(); i++) {
-        if (inst.index(i) != classIndex) {
-        	Key key = new Key((float) inst.valueSparse(i), (float) inst.classValue());
-        	Float cval = (float) (counts[inst.index(i)].getOrDefault(key, 0.0f) + inst.weight());
-        	counts[inst.index(i)].put(key, cval);
-        }
-      }
+  	
+  	if(maxCounter > 10000) {
+		counts = null;
+		maxCounter = 0;
+	} else {
+		for (int i = 0; i < inst.numValues(); i++) {
+	        if (inst.index(i) != classIndex) {
+	        	Key key = new Key((float) inst.valueSparse(i), (float) inst.classValue());
+	        	Float cval = (float) (counts[inst.index(i)].getOrDefault(key, 0.0f) + inst.weight());
+	        	counts[inst.index(i)].put(key, cval);
+	        	maxCounter++;
+	        }
+	      }
+	}
+      
       
       updated = true;
   }
@@ -240,6 +250,7 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
    * Counters are updated in each iteration.
    */
   public void applySelection(){
+	  
 	  if(counts != null && updated) {
 		  m_InfoValues = new double[counts.length];
 		    for (int i = 0; i < counts.length; i++) {
@@ -270,6 +281,8 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 		    		cpos.put(f, cidx++);
 		    	} 
 		    	
+		    	
+		    	
 		    	double[][] lcounts = new double[avalues.size()][cvalues.size()];		    	
 	            for (Iterator<Entry<Key, Float>> it = entries.iterator(); it.hasNext(); ) {
 		            Entry<Key, Float> entry = it.next();
@@ -277,24 +290,42 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 	            }
 	            
 	            switch (method) {
+	            case 7:
+	            	// Gain Ratio
+	            	m_InfoValues[i] = ContingencyTables.gainRatio(lcounts);
+					break;
+	            case 6:
+	            	// CramersV
+	            	m_InfoValues[i] = ContingencyTables.CramersV(lcounts);
+					break;
 	            case 5:
+	            	// Chi-Squared
 	            	m_InfoValues[i] = ContingencyTables.chiVal(
 	            	          ContingencyTables.reduceMatrix(lcounts), false);
 					break;
 				case 2:
+					// Symmetrical Uncertainty
 					m_InfoValues[i] = ContingencyTables.symmetricalUncertainty(lcounts);
 					break;
 
 				default:
+					// Information Gain
 					m_InfoValues[i] = (ContingencyTables.entropyOverColumns(lcounts) - ContingencyTables
 					          .entropyConditionedOnRows(lcounts));
 					break;
-				}		        
+				}
+	            
+	          
+		          
 		      }
+		     
 		    }
 		    
+		    
             updated = false;
+            
 	  }
+	  
   }
 
   /**
