@@ -78,6 +78,8 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
   private boolean updated = false;
   
   private int method = 0;
+  
+  protected int totalCount = 0;
 
   /**
    * Returns a string describing this attribute evaluator
@@ -226,21 +228,22 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 	    for(int i = 0; i < counts.length; i++) counts[i] = new HashMap<Key, Float>();
   	}
   	
-  	if(maxCounter > 10000) {
-		counts = null;
-		maxCounter = 0;
-	} else {
+  	//Memory save mechanism
+  	if(maxCounter > 1000) {
+  		counts = null;
+  		maxCounter = 0;
+  	}
+  	
 		for (int i = 0; i < inst.numValues(); i++) {
 	        if (inst.index(i) != classIndex) {
 	        	Key key = new Key((float) inst.valueSparse(i), (float) inst.classValue());
 	        	Float cval = (float) (counts[inst.index(i)].getOrDefault(key, 0.0f) + inst.weight());
 	        	counts[inst.index(i)].put(key, cval);
-	        	maxCounter++;
 	        }
 	      }
-	}
-      
-      
+
+      maxCounter++;
+	  totalCount++;
       updated = true;
   }
   
@@ -308,10 +311,12 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 					m_InfoValues[i] = ContingencyTables.symmetricalUncertainty(lcounts);
 					break;
 
-				default:
+				case 1:
 					// Information Gain
 					m_InfoValues[i] = (ContingencyTables.entropyOverColumns(lcounts) - ContingencyTables
 					          .entropyConditionedOnRows(lcounts));
+					break;
+				default:
 					break;
 				}
 	            

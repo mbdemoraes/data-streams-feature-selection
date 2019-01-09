@@ -87,6 +87,7 @@ AttributeEvaluator, MOAAttributeEvaluator{
 
 
 	private boolean updated = false;
+
 	
 	/**
 	   * Returns a string describing this attribute evaluator
@@ -190,8 +191,14 @@ AttributeEvaluator, MOAAttributeEvaluator{
 		score = (m_predPosVector.dotMultiply(x)) - (m_predNegVector.dotMultiply(x)) - m_Threshold; 
 		double classValue = inst.classValue();
 		
-		if(score * classValue <= marginM){
-			updateModels(normalizedData, inst.classValue());
+		if(classValue==0) {
+			classValue = -1.0;
+		}
+		
+		double result = score * classValue;
+		
+		if(result <= marginM){
+			updateModels(normalizedData, classValue);
 		}
 		
 		updated = true;

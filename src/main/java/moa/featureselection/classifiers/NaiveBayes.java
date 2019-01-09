@@ -36,7 +36,6 @@ import moa.core.AutoExpandVector;
 import moa.core.DoubleVector;
 import moa.core.Measurement;
 import moa.core.StringUtils;
-import moa.featureselection.algorithms.ChiSquaredOnline;
 import moa.featureselection.algorithms.ExtremeFeatureSelection;
 
 import moa.featureselection.algorithms.IncrInfoThAttributeEval;
