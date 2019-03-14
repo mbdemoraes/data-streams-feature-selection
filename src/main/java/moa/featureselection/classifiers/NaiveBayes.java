@@ -22,6 +22,7 @@ package moa.featureselection.classifiers;
 
 
 
+import com.github.javacliparser.FloatOption;
 import com.github.javacliparser.IntOption;
 
 import java.util.ArrayList;
@@ -37,10 +38,10 @@ import moa.core.DoubleVector;
 import moa.core.Measurement;
 import moa.core.StringUtils;
 import moa.featureselection.algorithms.ExtremeFeatureSelection;
-
 import moa.featureselection.algorithms.IncrInfoThAttributeEval;
+import moa.featureselection.algorithms.ModifiedOnlineFeatureSelection;
 import moa.featureselection.algorithms.OnlineFeatureSelection;
-
+import moa.featureselection.algorithms.UnsupervisedFeatureSelection;
 import moa.featureselection.common.MOAAttributeEvaluator;
 import weka.attributeSelection.ASEvaluation;
 import weka.attributeSelection.AttributeSelection;
@@ -95,10 +96,13 @@ public class NaiveBayes extends AbstractClassifier implements MultiClassClassifi
 			10, 1, Integer.MAX_VALUE);
 	/* Attribute for the user to select which FS method shall be used. */
 	public static IntOption fsmethodOption = new IntOption("fsMethod", 'm',
-			"Infotheoretic method to be used in feature selection: 0. No method. 1. Information Gain 2. FCBF 3. OFS 4. EFS with MBW 5. Chi-Squared 6. Crammers V-Test 7. Gain Ratio 8. ReliefF",
+			"Infotheoretic method to be used in feature selection: 0. No method. 1. Information Gain 2. FCBF 3. OFS 4. EFS with MBW 5. Chi-Squared 6. Gain Ratio 7. Modified EFS 8. Unsupervised",
 			0, 0, 8);
 	/* Attribute for the user to select the size of the window for model updates */
 	public static IntOption winSizeOption = new IntOption("winSize", 'w', "Window size for model updates", 1, 1,
+			Integer.MAX_VALUE);
+	/* Thresold for MOFS */
+	public static FloatOption thresholdMOFS = new FloatOption("threshold", 't', "Threshold for MOFS", 0, 0,
 			Integer.MAX_VALUE);
 
 	/* Attribute which will contain the selected FS method. */
@@ -211,12 +215,15 @@ public class NaiveBayes extends AbstractClassifier implements MultiClassClassifi
 		com.yahoo.labs.samoa.instances.Instance rinst = inst;
 		if (fsmethodOption.getValue() != 0) {
 			if (fselector == null) {
+				if (fsmethodOption.getValue() == 8) {
+					fselector = new ModifiedOnlineFeatureSelection(numFeaturesOption.getValue(), thresholdMOFS.getValue());
+				}
 				if (fsmethodOption.getValue() == 4) {
-					fselector = new ExtremeFeatureSelection();
+					fselector = new ExtremeFeatureSelection(numFeaturesOption.getValue());
 				}
 				else if (fsmethodOption.getValue() == 3) {
 					fselector = new OnlineFeatureSelection(numFeaturesOption.getValue());					
-				} else if ((fsmethodOption.getValue() == 5 || fsmethodOption.getValue() == 6 || fsmethodOption.getValue() == 7 || fsmethodOption.getValue() == 2 || fsmethodOption.getValue() == 1 )) {
+				} else if ((fsmethodOption.getValue() == 5 || fsmethodOption.getValue() == 6 || fsmethodOption.getValue() == 2 || fsmethodOption.getValue() == 1 )) {
 					fselector = new IncrInfoThAttributeEval(fsmethodOption.getValue());
 				} 
 			}
@@ -323,7 +330,6 @@ public class NaiveBayes extends AbstractClassifier implements MultiClassClassifi
 		com.yahoo.labs.samoa.instances.Instance sinst = inst;
 		double[] votes = new double[observedClassDistribution.numValues()];
 		double observedClassSum = observedClassDistribution.sumOfValues();
-		
 		
 		
 		if ((fsmethodOption.getValue() != 0) && (fselector != null))

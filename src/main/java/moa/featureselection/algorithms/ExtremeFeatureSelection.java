@@ -27,6 +27,7 @@ import weka.attributeSelection.ASEvaluation;
 import weka.attributeSelection.AttributeEvaluator;
 import weka.core.AlgVector;
 import weka.core.Instances;
+import weka.core.Utils;
 
 
 
@@ -79,14 +80,23 @@ AttributeEvaluator, MOAAttributeEvaluator{
 
 	protected double score = 0.0;
 	protected AlgVector rankedAttributes = null;
+	protected AlgVector rankedAttributes90 = null;
 
 	/** The weight vectors for prediction **/
 	private AlgVector m_predPosVector = null;
 	private AlgVector m_predNegVector = null;
+	
+	private boolean rankAttributes = true;
+    protected int m_numAttribs = 0;
 
-
-
+	private int numFeatures = 10;
 	private boolean updated = false;
+	private int instanceConunter = 0;
+	
+	
+	public ExtremeFeatureSelection(int numFeatures) {
+		this.numFeatures = numFeatures;
+	}
 
 	
 	/**
@@ -132,6 +142,57 @@ AttributeEvaluator, MOAAttributeEvaluator{
 		}
 
 	}
+	
+	public double[][] rankedAttributes(int[] m_attributeList, double[] m_attributeMerit){
+	    int i, j;
+
+	    int[] ranked = Utils.sort(m_attributeMerit);
+	    // reverse the order of the ranked indexes
+	    double[][] bestToWorst = new double[ranked.length][2];
+
+	    for (i = ranked.length - 1, j = 0; i >= 0; i--) {
+	      bestToWorst[j++][0] = ranked[i];
+	    }
+
+	    // convert the indexes to attribute indexes
+	    for (i = 0; i < bestToWorst.length; i++) {
+	      int temp = ((int) bestToWorst[i][0]);
+	      bestToWorst[i][0] = m_attributeList[temp];
+	      bestToWorst[i][1] = m_attributeMerit[temp];
+	    }
+
+
+	    return bestToWorst;
+	    
+	}
+	
+	public void findLowestScore(){
+		
+		
+		int[] m_attributeList = new int[m_numAttribs];
+		double[] m_attributeMerit = new double[m_numAttribs];
+		
+		for (int i = 0; i < m_attributeList.length; i++) {
+			  m_attributeList[i] = i;
+		      m_attributeMerit[i] = rankedAttributes90.getElement(i);
+		}
+		
+		double[][] tempRanked = rankedAttributes(m_attributeList, m_attributeMerit);
+	    int[] rankedAttributes = new int[m_attributeList.length];
+
+	    for (int i = 0; i < m_attributeList.length; i++) {
+	      rankedAttributes[i] = (int) tempRanked[i][0];
+	    }
+	    
+	    //upgrade the lowest score
+		int attributesToUpgrade = (int) Math.round(numFeatures*0.10);
+		
+		int worstToBest = rankedAttributes.length-1;
+		for(int j=0; j<attributesToUpgrade; j++) {
+			rankedAttributes90.setElement(rankedAttributes[worstToBest], (rankedAttributes90.getElement(rankedAttributes[0] + 1)));
+			worstToBest--;
+		}
+	}
 
 	/**
 	 * Updates the positive and negative models.
@@ -153,6 +214,7 @@ AttributeEvaluator, MOAAttributeEvaluator{
 				m_predNegVector.setElement(l,  (m_predNegVector.getElement(l))*m_Alpha*(1-normalizedData[l]));  
 			}
 			rankedAttributes.setElement(l, Math.abs(m_predPosVector.getElement(l) - m_predNegVector.getElement(l)));
+			rankedAttributes90 = rankedAttributes;
 		}
 	}
 
@@ -163,13 +225,20 @@ AttributeEvaluator, MOAAttributeEvaluator{
 	public void updateEvaluator(Instance inst) throws Exception {
 
 		if(m_predPosVector == null && m_predNegVector == null) {
+			m_numAttribs = inst.numAttributes()-1;
 			m_predPosVector = new AlgVector(new double[inst.numAttributes()]);
 			m_predNegVector = new AlgVector(new double[inst.numAttributes()]);
 			rankedAttributes = new AlgVector(new double[inst.numAttributes()]);
+			
+			if((numFeatures*0.10 >= m_numAttribs)) {
+				rankAttributes = false;
+			}
+			
 			for(int i = 0; i < (inst.numAttributes()); i++) {
 				m_predPosVector.setElement(i, m_defaultWeight); 
 				m_predNegVector.setElement(i, m_defaultWeight); 
 				rankedAttributes.setElement(i, 0);
+
 			}
 		}
 			
@@ -199,6 +268,11 @@ AttributeEvaluator, MOAAttributeEvaluator{
 		
 		if(result <= marginM){
 			updateModels(normalizedData, classValue);
+			//if there are less features than included in option, consider all features
+			if((numFeatures*0.10 < m_numAttribs)) {
+				rankAttributes = true;
+			}
+			
 		}
 		
 		updated = true;
@@ -216,7 +290,13 @@ AttributeEvaluator, MOAAttributeEvaluator{
 	}
 
 	public double evaluateAttribute(int attribute) throws Exception {
-		return rankedAttributes.getElement(attribute);
+		
+		if(rankAttributes==true) {
+			findLowestScore();
+			rankAttributes = false;
+		}
+		//return rankedAttributes.getElement(attribute);
+		return rankedAttributes90.getElement(attribute);
 	}
 
 	@Override

@@ -228,12 +228,8 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 	    for(int i = 0; i < counts.length; i++) counts[i] = new HashMap<Key, Float>();
   	}
   	
-  	//Memory save mechanism
-  	if(maxCounter > 1000) {
-  		counts = null;
-  		maxCounter = 0;
-  	}
-  	
+  		int teste = inst.index(0);
+  		
 		for (int i = 0; i < inst.numValues(); i++) {
 	        if (inst.index(i) != classIndex) {
 	        	Key key = new Key((float) inst.valueSparse(i), (float) inst.classValue());
@@ -242,8 +238,6 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 	        }
 	      }
 
-      maxCounter++;
-	  totalCount++;
       updated = true;
   }
   
@@ -293,11 +287,11 @@ public class IncrInfoThAttributeEval extends ASEvaluation implements
 	            }
 	            
 	            switch (method) {
-	            case 7:
+	            case 6:
 	            	// Gain Ratio
 	            	m_InfoValues[i] = ContingencyTables.gainRatio(lcounts);
 					break;
-	            case 6:
+	            case 9:
 	            	// CramersV
 	            	m_InfoValues[i] = ContingencyTables.CramersV(lcounts);
 					break;
